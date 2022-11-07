@@ -4,7 +4,7 @@ namespace FindPrimes
     {
         // Used to enable cancelation of the sync task
         private bool Canceled { get; set; }
-        private bool[] primes; // Array used to determine primes
+        private bool[] fibonaccis; // Array used to determine fibonaccis
 
         // Fibonacci variables
         private long n1 = 0; // Initialize first Fibonacci number
@@ -18,35 +18,11 @@ namespace FindPrimes
             percentageLabel.Text = $"{0:PO}";
         }
 
-        // Handles getPrimesButton's click event
-        private async void getPrimesButton_Click(object sender, EventArgs e)
-        {
-            // Get user input
-            var maximum = int.Parse(maxValueTextBox.Text);
-
-            // Create array for determining primes 
-            primes = Enumerable.Repeat(true, maximum).ToArray();
-
-            // Reset Canceled and GUI
-            Canceled = false;
-            getPrimesButton.Enabled = false;
-            cancelButton.Enabled = true;
-            primesTextBox.Text = string.Empty;
-            statusLabel.Text = string.Empty;
-            percentageLabel.Text = $"{0:PO}";
-            progressBar.Value = progressBar.Minimum;
-            progressBar.Maximum = maximum;
-
-            // Show primes up to maximum
-            int count = await FindPrimes(maximum);
-            statusLabel.Text = $"Found {count} prime(s)";
-        }
-
         // Start an async Task to calculate specified Fibonacci number
         private async void calculateButton_Click(object sender, EventArgs e)
         {
             // Retrieve user's input as an integer
-            int number = int.Parse(maxValueTextBox.Text);
+            long number = int.Parse(maxValueTextBox.Text);
 
             statusLabel.Text = "Calculating...";
 
@@ -60,18 +36,18 @@ namespace FindPrimes
             statusLabel.Text = fibonacciTask.Result.ToString();
         }
 
-        // Displays prime numbers in primesTextBox
-        private async Task<int> FindPrimes(int maximum)
+        // Displays Fibonacci numbers in primesTextBox
+        private async Task<long> FindFibonaccis(long maximum)
         {
-            var primeCount = 0;
+            var fibonacciCount = 0;
 
             // Find primes less than maximum
-            for (var i = 2; i < maximum && !Canceled; ++i)
+            for (var i = 0; i < maximum && !Canceled; ++i)
             {
                 // If i is prime, display it
-                if (await Task.Run(() => IsPrime(i)))
+                if (await Task.Run(() => IsFibonacci(i)))
                 {
-                    ++primeCount;
+                    ++fibonacciCount;
                     primesTextBox.AppendText($"{i}{Environment.NewLine}");
                 }
 
@@ -87,17 +63,17 @@ namespace FindPrimes
 
             getPrimesButton.Enabled = true;
             cancelButton.Enabled = false;
-            return primeCount;
+            return fibonacciCount;
         }
 
-        // The Sieve of Eratosthenes
-        public bool IsPrime(int value)
+        // Algorithm for calculating Fibonaccis
+        public bool IsFibonacci(long value)
         {
-            if (primes[value])
+            if (fibonaccis[value])
             {
-                for (var i = value + value; i < primes.Length; i += value)
+                for (var i = value + value; i < fibonaccis.Length; i += value)
                 {
-                    primes[i] = false;
+                    fibonaccis[i] = false;
                 }
 
                 return true;
@@ -106,19 +82,6 @@ namespace FindPrimes
             {
                 return false;
             }
-        }
-
-        // Calculate next Fibonacci number iteratively 
-        private void nextNumberButton_Click(object sender, EventArgs e)
-        {
-            // Calculate the next Fibonacci number 
-            long temp = n1 + n2;
-            n1 = n2;
-            n2 = temp;
-            ++count;
-
-            //displayLabel.Text = $"Fibonacci of {count}:";
-            //syncResultLabel.Text = n2.ToString();
         }
 
         // Calculates nth Fibonacci number recursively
